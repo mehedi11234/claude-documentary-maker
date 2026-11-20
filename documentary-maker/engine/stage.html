@@ -1,0 +1,102 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>stage</title>
+<link rel="stylesheet" href="fonts/hf-fonts.css">
+<link rel="stylesheet" href="fonts/fonts.css">
+<script src="vendor/gsap.min.js"></script>
+<script src="theme.js"></script>
+<script>
+// theme -> CSS variables (every colour below comes from theme.js)
+(() => { const T = window.THEME, r = document.documentElement.style;
+  const set = { bg0: T.bg0, bg1: T.bg1, bg2: T.bg2, card1: T.card1, card2: T.card2, acc: T.acc, acc2: T.acc2, ink: T.ink, paper: T.paper, mute: T.mute, dim: T.dim,
+    warn: T.warn, 'warn-text': T.warnText, head: T.head, 'head-w': T.headWeight, 'head-track': T.headTrack, 'head-case': T.headCase, body: T.body };
+  for (const k in set) r.setProperty('--' + k, set[k]); })();
+</script>
+<script src="logos.js"></script><script src="foot.js"></script><script src="data.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg0)}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:var(--body),sans-serif;color:var(--paper)}
+.abs{position:absolute}
+.layer,.scn{position:absolute;inset:0}
+.scn{transform-style:preserve-3d}
+
+/* background: brand dark + faint grid + slow accent light */
+#bg{position:absolute;inset:0;background:radial-gradient(90% 70% at 50% 0%,var(--bg2) 0%,var(--bg1) 55%,var(--bg0) 100%)}
+#grid{position:absolute;inset:-80px;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:80px 80px;
+  -webkit-mask:radial-gradient(70% 65% at 50% 45%,#000 0%,transparent 100%);mask:radial-gradient(70% 65% at 50% 45%,#000 0%,transparent 100%)}
+#glow1{position:absolute;left:560px;top:-260px;width:900px;height:620px;border-radius:50%;background:radial-gradient(closest-side,color-mix(in srgb,var(--acc) 10%,transparent),transparent);filter:blur(40px)}
+#glow2{position:absolute;left:900px;top:640px;width:1100px;height:600px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.05),transparent);filter:blur(50px)}
+#world{position:absolute;inset:0}
+#vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(80% 75% at 50% 45%,transparent 55%,rgba(0,0,0,.55) 100%);z-index:80}
+#grain{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;pointer-events:none;z-index:81;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+
+/* type */
+.hd{font-family:var(--head),sans-serif;font-weight:var(--head-w);text-transform:var(--head-case);letter-spacing:var(--head-track);line-height:.96;color:var(--paper);white-space:nowrap}
+.hd .w{display:inline-block;will-change:transform}
+.lime,.accent{color:var(--acc)}
+.mute{color:var(--dim)}
+.mono{font-family:'Geist Mono',monospace}
+.sg{font-family:var(--head),sans-serif;font-weight:var(--head-w);text-transform:var(--head-case);letter-spacing:-.03em}
+
+/* pills */
+.tag{display:inline-flex;align-items:center;gap:.5em;height:1.9em;padding:0 .85em;border-radius:999px;font-weight:600;white-space:nowrap;line-height:1}
+.tag.lime{background:var(--acc);color:var(--ink)}
+.tag.line{border:1.5px solid color-mix(in srgb,var(--acc) 55%,transparent);color:var(--acc);background:color-mix(in srgb,var(--acc) 7%,transparent)}
+.tag.dark{background:var(--card1);color:var(--paper);border:1px solid rgba(255,255,255,.08)}
+.tag.pink{border:1.5px solid color-mix(in srgb,var(--warn) 60%,transparent);color:var(--warn-text);background:color-mix(in srgb,var(--warn) 8%,transparent)}
+.tag svg{width:1em;height:1em}
+
+/* cards */
+.card{border-radius:28px;background:linear-gradient(180deg,var(--card1) 0%,var(--card2) 100%);border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 50px 90px -40px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.06);overflow:hidden}
+.ltile{display:grid;place-items:center;background:linear-gradient(180deg,var(--card1),var(--card2));border:1px solid rgba(255,255,255,.09);box-shadow:0 30px 60px -30px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.07)}
+.logo{display:inline-grid;place-items:center}
+.logo svg{width:100%;height:100%}
+.stamp{font-family:var(--head),sans-serif;font-weight:var(--head-w);text-transform:uppercase;letter-spacing:-.02em;color:var(--ink);background:var(--acc);padding:.08em .38em;border-radius:.16em;
+  box-shadow:0 0 0 .07em var(--ink),0 0 0 .12em var(--acc),0 20px 50px -10px color-mix(in srgb,var(--acc) 45%,transparent);white-space:nowrap}
+.num{font-family:var(--head),sans-serif;font-weight:var(--head-w);color:var(--acc);letter-spacing:-.02em}
+
+/* footage frame */
+.ff{overflow:hidden;background:#000;border:1px solid rgba(255,255,255,.12);box-shadow:0 60px 120px -40px rgba(0,0,0,.95)}
+.ff.glow{box-shadow:0 0 0 1px color-mix(in srgb,var(--acc) 18%,transparent),0 0 80px -18px color-mix(in srgb,var(--acc) 38%,transparent),0 60px 120px -40px rgba(0,0,0,.95)}
+.ffbar{position:absolute;left:0;right:0;top:0;height:46px;background:var(--card2);border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:8px;padding:0 18px;z-index:3}
+.ffbar i{display:block;width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.2)}
+.ffbar .url{margin-left:16px;height:28px;display:flex;align-items:center;padding:0 16px;border-radius:14px;background:var(--bg1);color:var(--mute);font-size:17px;font-weight:500;letter-spacing:.01em}
+.ffvp{position:absolute;left:0;right:0;overflow:hidden}
+.ffvp img{position:absolute;left:0;top:0;transform-origin:0 0}
+.ring{position:absolute;border-radius:14px;z-index:5;display:none}
+.rlabel{position:absolute;left:-3px;top:-46px;background:var(--acc);color:var(--ink);font-weight:700;font-size:22px;padding:5px 12px;border-radius:9px;white-space:nowrap}
+.blurbox{position:absolute;z-index:4;border-radius:8px;backdrop-filter:blur(14px);background:rgba(40,42,46,.55);display:none}
+.cursor{left:0;top:0;width:84px;height:112px;filter:drop-shadow(0 14px 14px rgba(0,0,0,.55));transform-origin:6px 6px;z-index:60}
+
+/* captions: lower third, word by word */
+#caps{position:absolute;left:0;right:0;bottom:46px;height:70px;display:flex;justify-content:center;z-index:70;pointer-events:none}
+#caps .cl{display:inline-flex;gap:.32em;align-items:center;font-size:40px;font-weight:600;letter-spacing:-.01em;padding:8px 24px;border-radius:16px;background:color-mix(in srgb,var(--bg0) 62%,transparent);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.06)}
+#caps span{color:color-mix(in srgb,var(--paper) 38%,transparent)}
+#caps span.on{color:var(--paper)}
+#caps span.k.on{color:var(--acc)}
+</style></head><body>
+<div id="root">
+  <div id="bg"><div id="grid"></div><div id="glow1"></div><div id="glow2"></div></div>
+  <div id="world"></div>
+  <div id="vig"></div><div id="grain"></div>
+  <div id="caps"></div>
+</div>
+<script src="lib.js"></script>
+<script src="doc.js"></script>
+<script src="scenes.js"></script>
+<script src="scenes_b.js" onerror="this.remove()"></script>
+<script>
+window.onerror = (m, s, l) => { window.ERR = m + ' @' + s + ':' + l; };
+(async () => {
+  try {
+    background(); build(); captions();
+    await document.fonts.load('700 80px "Space Grotesk"'); await document.fonts.load('500 30px Inter'); await document.fonts.load('600 30px Inter');
+    await document.fonts.load('700 30px Inter'); await document.fonts.load('500 20px "Geist Mono"');
+    await document.fonts.ready;
+  } catch (e) { window.ERR = e.stack || String(e); }
+  window.READY = true;
+})();
+</script>
+</body></html>

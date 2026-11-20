@@ -1,0 +1,8 @@
+# downloaded by tools/setup.py
+documentary-maker/engine/vendor/
+# never commit keys or local settings
+.env
+*.env
+__pycache__/
+*.wav
+*.mp4
